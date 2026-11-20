@@ -4,11 +4,12 @@ REST API сервис для управления списком задач.
 
 ## Технологии
 
-- Python 3.12
+- Python 3.14+
 - FastAPI
 - PostgreSQL
 - SQLAlchemy 2.0
 - Alembic
+- Pydantic, Pydantic Settings
 - uv
 
 ## Локальный запуск

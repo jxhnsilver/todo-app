@@ -3,16 +3,16 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class TaskReadSchema(BaseModel):
+class TaskRead(BaseModel):
     id: UUID
     title: str
     is_completed: bool
 
 
-class TaskCreateSchema(BaseModel):
+class TaskCreate(BaseModel):
     title: str
 
 
-class TaskUpdateSchema(BaseModel):
+class TaskUpdate(BaseModel):
     title: str | None = None
     is_completed: bool | None = None
