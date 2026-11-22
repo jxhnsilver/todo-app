@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:18-alpine
+    env_file:
+      - .env
+      - .env.local
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrator:
+    build: .
+    env_file: .env
+    command: alembic upgrade head
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

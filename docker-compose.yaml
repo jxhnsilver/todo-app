@@ -1,0 +1,31 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+
+  db:
+    image: postgres:18-alpine
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrator:
+    build: .
+    env_file: .env
+    command: alembic upgrade head
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
