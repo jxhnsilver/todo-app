@@ -11,32 +11,59 @@ REST API сервис для управления списком задач.
 - Alembic
 - Pydantic, Pydantic Settings
 - uv
+- Docker, Docker Compose
 
-## Локальный запуск
+## Запуск
+
+Создайте файл `.env` из шаблона (общий шаг для обоих способов запуска):
+
+```bash
+cp .env.example .env
+```
+
+---
+
+### 1. Полный запуск в Docker (Production-like)
+
+Поднимает API и БД одной командой. Подходит для быстрой проверки и демо.
+
+```bash
+docker compose -f docker-compose.yaml up --build -d
+```
+
+---
+
+### 2. Локальная разработка (БД в Docker, API локально)
+
+БД в контейнере, API на хосте — для отладки и горячей перезагрузки.
 
 1. Установите зависимости:
+
    ```bash
    uv sync
    ```
 
-2. Создайте файл `.env`:
-   ```bash
-   cp .env.example .env
+2. Создайте файл `.env.local` в корне проекта и добавьте в него только следующие строки (остальные переменные подтянутся из основного `.env`):
+
+   ```env
+   POSTGRES_HOST=localhost
+   POSTGRES_PORT=15432
    ```
 
-3. Запустите PostgreSQL в Docker:
+3. Запустите базу данных в Docker (сервис migrator автоматически накатит все миграции при старте):
+
    ```bash
-   docker run -d --rm --name todo-postgres -p 15432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=todo_app_db postgres:18-alpine
+   docker compose --env-file .env --env-file .env.local -f docker-compose.local.yaml up --build -d
    ```
 
-4. Примените миграции:
-   ```bash
-   uv run alembic upgrade head
-   ```
+4. Запустите FastAPI-сервер локально:
 
-5. Запустите сервер:
    ```bash
    uv run uvicorn app.main:app --reload
    ```
 
-Документация API (Swagger): http://127.0.0.1:8000/docs
+---
+
+## Документация API (Swagger)
+
+Swagger UI доступен после запуска по адресу: http://localhost:8000/docs
