@@ -44,13 +44,10 @@ docker compose -f docker-compose.yaml up --build -d
    uv sync
    ```
 
-2. Создайте файл `.env.local` в корне проекта и добавьте в него только следующие строки (остальные переменные подтянутся из основного `.env`):
+2. Создайте файл `.env.local` из шаблона (переменные из него переопределят значения из основного `.env`):
 
-   ```env
-   POSTGRES_HOST=localhost
-   POSTGRES_PORT=15432
-   REDIS_HOST=localhost
-   REDIS_PORT=6379
+   ```bash
+   cp .env.local.example .env.local
    ```
 
 3. Запустите базу данных и Redis в Docker (сервис migrator автоматически накатит все миграции при старте):
