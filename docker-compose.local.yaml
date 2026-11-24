@@ -22,5 +22,13 @@ services:
       db:
         condition: service_healthy
 
+  redis:
+    image: redis:8.8.4-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
   pgdata:
+  redis_data:

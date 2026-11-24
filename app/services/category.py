@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import Depends
 from sqlalchemy import select, delete, exists
 
+from app.cache import RedisCacheDep, keys
 from app.core.database import DbSession
 from app.core.exceptions import CategoryNotFoundError, CategoryHasTasksError
 from app.models import TaskORM
@@ -13,8 +14,9 @@ from app.schemas.category import CategoryCreate, CategoryRead, CategoryUpdate
 
 
 class CategoryService:
-    def __init__(self, session: DbSession):
+    def __init__(self, session: DbSession, cache: RedisCacheDep):
         self.session = session
+        self.cache = cache
 
     def create(self, category_create: CategoryCreate) -> CategoryRead:
         new_category_orm = CategoryORM(**category_create.model_dump())
@@ -50,6 +52,8 @@ class CategoryService:
             category_orm.title = category_update.title
 
         self.session.commit()
+
+        self.cache.delete(keys.TASKS_KEY)
 
         return CategoryRead.model_validate(category_orm)
 
