@@ -2,9 +2,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, status, HTTPException
 
+from app.api.dependencies import CategoryServiceDep
 from app.core.exceptions import CategoryNotFoundError, CategoryHasTasksError
-from app.schemas.category import CategoryCreate, CategoryRead, CategoryUpdate
-from app.services.category import CategoryServiceDep
+from app.schemas import CategoryCreate, CategoryRead, CategoryUpdate
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 

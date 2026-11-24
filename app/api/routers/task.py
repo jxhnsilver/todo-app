@@ -2,17 +2,15 @@ from uuid import UUID
 
 from fastapi import APIRouter, status, HTTPException
 
-from app.core.exceptions import TaskNotFoundError
-from app.schemas.task import TaskRead, TaskCreate, TaskUpdate
-
-from app.services.task import TaskServiceDep
+from app.api.dependencies import TaskServiceDep
+from app.core.exceptions import TaskNotFoundError, CategoryNotFoundError
+from app.schemas import TaskRead, TaskCreate, TaskUpdate
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 def create_task(task_create: TaskCreate, service: TaskServiceDep) -> TaskRead:
-    return service.create(task_create)
 
 
 @router.get("")

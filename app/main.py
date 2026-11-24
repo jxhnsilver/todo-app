@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import task, category
+from app.api.routers import task, category
 
 app = FastAPI(title="Todo App")
 
