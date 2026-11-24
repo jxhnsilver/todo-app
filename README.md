@@ -12,6 +12,7 @@ REST API сервис для управления списком задач.
 - Pydantic, Pydantic Settings
 - uv
 - Docker, Docker Compose
+- Redis
 
 ## Запуск
 
@@ -25,7 +26,7 @@ cp .env.example .env
 
 ### 1. Полный запуск в Docker (Production-like)
 
-Поднимает API и БД одной командой. Подходит для быстрой проверки и демо.
+Поднимает API, БД и Redis одной командой. Подходит для быстрой проверки и демо.
 
 ```bash
 docker compose -f docker-compose.yaml up --build -d
@@ -48,9 +49,11 @@ docker compose -f docker-compose.yaml up --build -d
    ```env
    POSTGRES_HOST=localhost
    POSTGRES_PORT=15432
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
    ```
 
-3. Запустите базу данных в Docker (сервис migrator автоматически накатит все миграции при старте):
+3. Запустите базу данных и Redis в Docker (сервис migrator автоматически накатит все миграции при старте):
 
    ```bash
    docker compose --env-file .env --env-file .env.local -f docker-compose.local.yaml up --build -d
