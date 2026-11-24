@@ -1,25 +1,30 @@
 from collections.abc import Sequence
-from typing import Annotated
+
 from uuid import UUID
 
-from fastapi import Depends
-from sqlalchemy import select, delete
-from sqlalchemy.orm import joinedload
+from sqlalchemy import select, delete, exists
+from sqlalchemy.orm import joinedload, Session
 
-from app.cache import keys, RedisCacheDep
-from app.core.database import DbSession
-from app.core.exceptions import TaskNotFoundError
-from app.models import TaskORM
 
-from app.schemas.task import TaskCreate, TaskRead, TaskUpdate
+from app.cache import keys, RedisCache
+from app.core.exceptions import TaskNotFoundError, CategoryNotFoundError
+from app.models import TaskORM, CategoryORM
+
+from app.schemas import TaskCreate, TaskRead, TaskUpdate
 
 
 class TaskService:
-    def __init__(self, session: DbSession, cache: RedisCacheDep):
+    def __init__(self, session: Session, cache: RedisCache):
         self.session = session
         self.cache = cache
 
     def create(self, task_create: TaskCreate) -> TaskRead:
+        category_exists_stmt = select(exists().where(CategoryORM.id == task_create.category_id))
+        category_exists = self.session.scalar(category_exists_stmt)
+
+        if not category_exists:
+            raise CategoryNotFoundError(task_create.category_id)
+
         new_task_orm = TaskORM(**task_create.model_dump())
 
         self.session.add(new_task_orm)
@@ -78,6 +83,12 @@ class TaskService:
         if task_update.is_completed is not None:
             task_orm.is_completed = task_update.is_completed
         if task_update.category_id is not None:
+            category_exists_stmt = select(exists().where(CategoryORM.id == task_update.category_id))
+            category_exists = self.session.scalar(category_exists_stmt)
+
+            if not category_exists:
+                raise CategoryNotFoundError(task_update.category_id)
+
             task_orm.category_id = task_update.category_id
 
         self.session.commit()
@@ -107,6 +118,3 @@ class TaskService:
         self.session.commit()
 
         self.cache.delete(keys.TASKS_KEY)
-
-
-TaskServiceDep = Annotated[TaskService, Depends()]

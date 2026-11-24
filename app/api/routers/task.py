@@ -2,17 +2,22 @@ from uuid import UUID
 
 from fastapi import APIRouter, status, HTTPException
 
-from app.core.exceptions import TaskNotFoundError
-from app.schemas.task import TaskRead, TaskCreate, TaskUpdate
-
-from app.services.task import TaskServiceDep
+from app.api.dependencies import TaskServiceDep
+from app.core.exceptions import TaskNotFoundError, CategoryNotFoundError
+from app.schemas import TaskRead, TaskCreate, TaskUpdate
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 def create_task(task_create: TaskCreate, service: TaskServiceDep) -> TaskRead:
-    return service.create(task_create)
+    try:
+        return service.create(task_create)
+    except CategoryNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
 
 
 @router.get("")
@@ -47,6 +52,11 @@ def update_task(task_id: UUID, task_update: TaskUpdate, service: TaskServiceDep)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
+        )
+    except CategoryNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
         )
 
 
