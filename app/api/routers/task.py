@@ -11,6 +11,13 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 def create_task(task_create: TaskCreate, service: TaskServiceDep) -> TaskRead:
+    try:
+        return service.create(task_create)
+    except CategoryNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
 
 
 @router.get("")
@@ -45,6 +52,11 @@ def update_task(task_id: UUID, task_update: TaskUpdate, service: TaskServiceDep)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
+        )
+    except CategoryNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
         )
 
 

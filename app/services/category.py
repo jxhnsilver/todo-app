@@ -1,20 +1,20 @@
 from collections.abc import Sequence
-from typing import Annotated
+
 from uuid import UUID
 
-from fastapi import Depends
 from sqlalchemy import select, delete, exists
+from sqlalchemy.orm import Session
 
-from app.cache import RedisCacheDep, keys
-from app.core.database import DbSession
+from app.cache import keys, RedisCache
+
 from app.core.exceptions import CategoryNotFoundError, CategoryHasTasksError
 from app.models import TaskORM
 from app.models.category import CategoryORM
-from app.schemas.category import CategoryCreate, CategoryRead, CategoryUpdate
+from app.schemas import CategoryCreate, CategoryRead, CategoryUpdate
 
 
 class CategoryService:
-    def __init__(self, session: DbSession, cache: RedisCacheDep):
+    def __init__(self, session: Session, cache: RedisCache):
         self.session = session
         self.cache = cache
 
@@ -74,6 +74,3 @@ class CategoryService:
             raise CategoryNotFoundError(category_id)
 
         self.session.commit()
-
-
-CategoryServiceDep = Annotated[CategoryService, Depends()]
