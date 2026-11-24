@@ -17,7 +17,7 @@ def get_db() -> Generator[Session, None, None]:
 
 DbSession = Annotated[Session, Depends(get_db)]
 
-_redis_cache = RedisCache(settings.REDIS_URL)
+_redis_cache = RedisCache(settings.redis_url)
 
 
 def get_redis() -> RedisCache:
