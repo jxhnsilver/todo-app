@@ -1,3 +1,3 @@
-from .session import SessionLocal
+from .session import AsyncSessionLocal
 
-__all__ = ["SessionLocal"]
+__all__ = ["AsyncSessionLocal"]

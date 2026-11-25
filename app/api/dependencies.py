@@ -1,21 +1,21 @@
-from collections.abc import Generator
+from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.cache import RedisCache
 from app.core.config import settings
-from app.db import SessionLocal
+from app.db import AsyncSessionLocal
 from app.services import TaskService, CategoryService
 
 
-def get_db() -> Generator[Session, None, None]:
-    with SessionLocal() as session:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
         yield session
 
 
-DbSession = Annotated[Session, Depends(get_db)]
+DbAsyncSession = Annotated[AsyncSession, Depends(get_db)]
 
 _redis_cache = RedisCache(settings.redis_url)
 
@@ -27,14 +27,14 @@ def get_redis() -> RedisCache:
 RedisCacheDep = Annotated[RedisCache, Depends(get_redis)]
 
 
-def get_task_service(session: DbSession, cache: RedisCacheDep) -> TaskService:
+def get_task_service(session: DbAsyncSession, cache: RedisCacheDep) -> TaskService:
     return TaskService(session=session, cache=cache)
 
 
 TaskServiceDep = Annotated[TaskService, Depends(get_task_service)]
 
 
-def get_category_service(session: DbSession, cache: RedisCacheDep) -> CategoryService:
+def get_category_service(session: DbAsyncSession, cache: RedisCacheDep) -> CategoryService:
     return CategoryService(session=session, cache=cache)
 
 

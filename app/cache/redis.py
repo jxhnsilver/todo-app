@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any
 
-import redis
+import redis.asyncio as redis
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +18,9 @@ class RedisCache:
             socket_timeout=2.0
         )
 
-    def get(self, key: str) -> Any | None:
+    async def get(self, key: str) -> Any | None:
         try:
-            raw = self.__redis.get(key)
+            raw = await self.__redis.get(key)
             if not raw:
                 return None
             return json.loads(raw)
@@ -28,17 +28,20 @@ class RedisCache:
             logger.warning(f"Redis GET failed for key '{key}': {e}")
             return None
 
-    def set(self, key: str, value: Any, ttl: int = DEFAULT_TTL) -> None:
+    async def set(self, key: str, value: Any, ttl: int = DEFAULT_TTL) -> None:
         try:
-            serialized = json.dumps(value)
-            self.__redis.setex(key, ttl, serialized)
+            serialized = json.dumps(value, ensure_ascii=False)
+            await self.__redis.setex(key, ttl, serialized)
         except redis.RedisError as e:
             logger.warning(f"Redis SET failed for key '{key}': {e}")
             return None
 
-    def delete(self, key: str) -> None:
+    async def delete(self, key: str) -> None:
         try:
-            self.__redis.delete(key)
+            await self.__redis.delete(key)
         except redis.RedisError as e:
             logger.warning(f"Redis DELETE failed for key '{key}': {e}")
-            return  None
+            return None
+
+    async def close(self):
+        await self.__redis.aclose()

@@ -10,13 +10,13 @@ router = APIRouter(prefix="/categories", tags=["Categories"])
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def create_category(category_create: CategoryCreate, service: CategoryServiceDep) -> CategoryRead:
-    return service.create(category_create)
+async def create_category(category_create: CategoryCreate, service: CategoryServiceDep) -> CategoryRead:
+    return await service.create(category_create)
 
 
 @router.get("")
-def get_categories(service: CategoryServiceDep) -> list[CategoryRead]:
-    return service.get_all()
+async def get_categories(service: CategoryServiceDep) -> list[CategoryRead]:
+    return await service.get_all()
 
 
 @router.get(
@@ -24,9 +24,9 @@ def get_categories(service: CategoryServiceDep) -> list[CategoryRead]:
     responses={
         status.HTTP_404_NOT_FOUND: {"description": "Категория не найдена"}
     })
-def get_category(category_id: UUID, service: CategoryServiceDep) -> CategoryRead:
+async def get_category(category_id: UUID, service: CategoryServiceDep) -> CategoryRead:
     try:
-        return service.get_by_id(category_id)
+        return await service.get_by_id(category_id)
     except CategoryNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -39,9 +39,10 @@ def get_category(category_id: UUID, service: CategoryServiceDep) -> CategoryRead
     responses={
         status.HTTP_404_NOT_FOUND: {"description": "Категория не найдена"}
     })
-def update_category(category_id: UUID, category_update: CategoryUpdate, service: CategoryServiceDep) -> CategoryRead:
+async def update_category(category_id: UUID, category_update: CategoryUpdate,
+                          service: CategoryServiceDep) -> CategoryRead:
     try:
-        return service.update(category_id, category_update)
+        return await service.update(category_id, category_update)
     except CategoryNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -55,9 +56,9 @@ def update_category(category_id: UUID, category_update: CategoryUpdate, service:
     responses={
         status.HTTP_404_NOT_FOUND: {"description": "Категория не найдена"}
     })
-def delete_category(category_id: UUID, service: CategoryServiceDep):
+async def delete_category(category_id: UUID, service: CategoryServiceDep):
     try:
-        return service.delete(category_id)
+        await service.delete(category_id)
     except CategoryNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
