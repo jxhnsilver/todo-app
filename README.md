@@ -13,6 +13,7 @@ REST API сервис для управления списком задач.
 - uv
 - Docker, Docker Compose
 - Redis
+- Pytest
 
 ## Запуск
 
